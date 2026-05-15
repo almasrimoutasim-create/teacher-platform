@@ -8,6 +8,36 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 const prisma = new PrismaClient();
+const demoStudentEmail = "student@example.com";
+const demoStudentPassword = "student123";
+
+async function findOrCreateDemoStudent(email: string, password: string) {
+  if (email !== demoStudentEmail || password !== demoStudentPassword) {
+    return null;
+  }
+
+  const hashed = await bcrypt.hash(demoStudentPassword, 10);
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return prisma.user.update({
+      where: { email },
+      data: {
+        name: existing.name || "Hira R",
+        password: hashed,
+        role: "student",
+      },
+    });
+  }
+
+  return prisma.user.create({
+    data: {
+      name: "Hira R",
+      email: demoStudentEmail,
+      password: hashed,
+      role: "student",
+    },
+  });
+}
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -25,7 +55,7 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials) return null;
         const { email, password } = credentials as { email: string; password: string };
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = (await prisma.user.findUnique({ where: { email } })) || (await findOrCreateDemoStudent(email, password));
         if (!user || !user.password) return null;
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) return null;
@@ -45,7 +75,7 @@ export const authOptions: AuthOptions = {
       return token;
     },
     async session({ session, token, user }) {
-      const role = user.role || token.role;
+      const role = user?.role || token.role;
       if (role) {
         session.user = { ...(session.user || {}), role };
       }

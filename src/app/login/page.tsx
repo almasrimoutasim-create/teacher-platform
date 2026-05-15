@@ -5,30 +5,47 @@ import Button from "../../components/ui/Button";
 import { signIn, type SignInResponse } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+const demoStudent = {
+  email: "student@example.com",
+  password: "student123",
+};
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const router = useRouter();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function loginWithCredentials(nextEmail: string, nextPassword: string) {
     setError(null);
-    if (!email || !password) {
+    if (!nextEmail || !nextPassword) {
       setError("Please enter email and password.");
       return;
     }
-    (async () => {
-      const res = (await signIn("credentials", { redirect: false, email, password })) as
-        | SignInResponse
-        | undefined;
-      if (res?.error) {
-        setError(res.error || "Invalid credentials");
-        return;
-      }
-      const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
-      router.replace(callbackUrl || "/dashboard");
-    })();
+
+    const res = (await signIn("credentials", { redirect: false, email: nextEmail, password: nextPassword })) as
+      | SignInResponse
+      | undefined;
+    if (res?.error) {
+      setError(res.error || "Invalid credentials");
+      return;
+    }
+    const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+    router.replace(callbackUrl || "/dashboard");
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    void loginWithCredentials(email, password);
+  }
+
+  async function handleDemoStudentLogin() {
+    setIsDemoLoading(true);
+    setEmail(demoStudent.email);
+    setPassword(demoStudent.password);
+    await loginWithCredentials(demoStudent.email, demoStudent.password);
+    setIsDemoLoading(false);
   }
 
   return (
@@ -74,6 +91,14 @@ export default function LoginPage() {
             <Button>Sign in</Button>
           </div>
         </form>
+
+        <button
+          type="button"
+          onClick={handleDemoStudentLogin}
+          className="mt-4 w-full rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-100"
+        >
+          {isDemoLoading ? "Signing in..." : "Use student demo: student@example.com / student123"}
+        </button>
 
         <div className="mt-4 flex items-center justify-center">
           <button

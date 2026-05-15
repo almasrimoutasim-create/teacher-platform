@@ -94,12 +94,9 @@ function AvatarStack() {
   );
 }
 
-export default function DashboardPage() {
-  const { data: session } = useSession();
-  const displayName = session?.user?.name || session?.user?.email || "Teacher";
-
+function TeacherDashboard({ displayName }: { displayName: string }) {
   return (
-    <ProtectedLayout allowedRoles={["teacher", "admin"]}>
+    <>
       <div className="min-h-screen bg-[#ececec] p-3 text-neutral-950 sm:p-6">
         <div className="mx-auto grid max-w-[1380px] grid-cols-1 overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-black/10 lg:grid-cols-[260px_1fr]">
           <aside className="bg-[#111111] p-5 text-white lg:min-h-[calc(100vh-48px)]">
@@ -308,6 +305,221 @@ export default function DashboardPage() {
           </main>
         </div>
       </div>
+    </>
+  );
+}
+
+const studentTeachers = [
+  {
+    name: "Prof. David",
+    hours: "4 hours lecture",
+    price: "$100/hr",
+    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=240&q=80",
+  },
+  {
+    name: "Prof. Lily",
+    hours: "2 hours lecture",
+    price: "$120/hr",
+    active: true,
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80",
+  },
+  {
+    name: "Prof. Alex",
+    hours: "4 hours lecture",
+    price: "$150/hr",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80",
+  },
+];
+
+const studentCourses = [
+  { title: "English", hours: "20 Hours", icon: "E" },
+  { title: "Spoken course", hours: "40 Hour", icon: "S" },
+  { title: "Writing course", hours: "20 Hour", icon: "W" },
+  { title: "Language course", hours: "20 Hour", icon: "L" },
+];
+
+const scheduleDays = [
+  { day: "12", month: "Oct", label: "Monday", time: "10:00am-12:00pm" },
+  { day: "13", month: "Oct", label: "Tuesday", time: "02:00pm-04:00pm", active: true },
+  { day: "14", month: "Oct", label: "Wednesday", time: "08:00am-10:00am" },
+];
+
+function StudentDashboard({ displayName }: { displayName: string }) {
+  return (
+    <div className="min-h-screen bg-[#dce0ec] p-4 text-[#10101b] sm:p-8">
+      <div className="mx-auto grid max-w-[1420px] overflow-hidden rounded-[34px] border-[12px] border-[#06056b] bg-[#f3f6fb] shadow-2xl shadow-slate-900/10 lg:grid-cols-[132px_1fr]">
+        <aside className="flex flex-row items-center justify-between gap-4 bg-[#06056b] px-6 py-5 text-white lg:min-h-[calc(100vh-88px)] lg:flex-col lg:justify-start lg:py-10">
+          <button className="grid h-11 w-11 place-items-center rounded-full text-3xl leading-none" aria-label="Menu">
+            =
+          </button>
+          <nav className="flex items-center gap-3 lg:mt-12 lg:flex-col lg:gap-7">
+            {["⌂", "○", "≡", "▣", "◷", "⚙"].map((item, index) => (
+              <button
+                key={item}
+                className={`grid h-12 w-12 place-items-center rounded-full text-xl ${
+                  index === 0 ? "bg-white text-[#06056b]" : "text-white/90 hover:bg-white/10"
+                }`}
+                aria-label={`Student navigation ${index + 1}`}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <main className="grid gap-6 p-5 sm:p-8 xl:grid-cols-[1fr_380px]">
+          <section>
+            <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                <h1 className="text-3xl font-extrabold tracking-normal">Dashboard</h1>
+                <label className="flex h-14 w-full min-w-0 max-w-[380px] items-center gap-3 rounded-full bg-white px-6 shadow-lg shadow-slate-200/70 md:w-[380px]">
+                  <span className="text-2xl">⌕</span>
+                  <input className="min-w-0 flex-1 bg-transparent text-base outline-none" placeholder="Search" />
+                </label>
+              </div>
+
+              <div className="flex items-center gap-5">
+                <button className="grid h-11 w-11 place-items-center rounded-full bg-[#1b1a37] text-2xl font-bold text-white">+</button>
+                <button className="relative text-3xl" aria-label="Notifications">
+                  ♧
+                  <span className="absolute right-0 top-1 h-2 w-2 rounded-full bg-red-500" />
+                </button>
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80"
+                    alt=""
+                    width={44}
+                    height={44}
+                    className="h-11 w-11 rounded-full object-cover"
+                  />
+                  <span className="text-xl font-extrabold">{displayName}</span>
+                </div>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="rounded-full border border-[#06056b] px-5 py-2 text-sm font-bold text-[#06056b] hover:bg-[#06056b] hover:text-white"
+                >
+                  Logout
+                </button>
+              </div>
+            </header>
+
+            <div className="mt-14 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <h2 className="text-3xl font-extrabold tracking-normal">Find your teacher</h2>
+              <button className="rounded-full bg-white px-8 py-4 text-sm font-semibold shadow-lg shadow-slate-200/80">
+                English⌄
+              </button>
+            </div>
+
+            <div className="mt-7 space-y-4">
+              {studentTeachers.map((teacher) => (
+                <article
+                  key={teacher.name}
+                  className={`grid grid-cols-[64px_1fr] items-center gap-4 rounded-[28px] px-7 py-5 md:grid-cols-[72px_1fr_180px_120px_24px] ${
+                    teacher.active ? "bg-white shadow-xl shadow-slate-200/80" : ""
+                  }`}
+                >
+                  <Image src={teacher.image} alt="" width={56} height={56} className="h-14 w-14 rounded-full object-cover" />
+                  <h3 className="text-lg font-extrabold">{teacher.name}</h3>
+                  <p className="text-sm text-neutral-600">{teacher.hours}</p>
+                  <p className="text-sm text-neutral-700">{teacher.price}</p>
+                  <button className="text-2xl leading-none">••</button>
+                </article>
+              ))}
+            </div>
+
+            <section className="mt-8">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <h2 className="text-3xl font-extrabold tracking-normal">Schedule</h2>
+                <div className="flex items-center gap-5">
+                  <span className="text-sm text-neutral-600">Oct 08, 2020</span>
+                  <button className="rounded-full bg-[#06056b] px-8 py-4 font-semibold text-white">Prof Lily⌄</button>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-6 lg:grid-cols-[250px_1fr]">
+                <article className="rounded-[34px] bg-white p-8 text-center shadow-xl shadow-slate-200/80">
+                  <Image
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80"
+                    alt=""
+                    width={96}
+                    height={96}
+                    className="mx-auto h-24 w-24 rounded-full object-cover"
+                  />
+                  <h3 className="mt-8 text-lg font-extrabold">Prof. Lily</h3>
+                  <p className="mt-3 text-neutral-600">5 years Experience</p>
+                  <p className="mt-2 text-neutral-600">Master&apos;s in Language</p>
+                  <button className="mt-8 rounded-full bg-[#06056b] px-8 py-3 font-bold text-white">Book Online</button>
+                </article>
+
+                <div className="space-y-6">
+                  {scheduleDays.map((item) => (
+                    <div key={item.day} className="grid items-center gap-4 md:grid-cols-[230px_1fr]">
+                      <div
+                        className={`grid grid-cols-[64px_1fr] items-center rounded-[24px] border px-7 py-5 ${
+                          item.active ? "border-[#06056b] bg-[#06056b] text-white" : "border-slate-300 bg-transparent"
+                        }`}
+                      >
+                        <span className="text-3xl font-extrabold">{item.day}</span>
+                        <span className="font-bold">
+                          <span className="block text-lg font-medium">{item.month}</span>
+                          {item.label}
+                        </span>
+                      </div>
+                      <p className="text-lg text-neutral-600">{item.time}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </section>
+
+          <aside className="rounded-[34px] bg-white p-8 shadow-xl shadow-slate-200/80">
+            <h2 className="text-2xl font-extrabold">My Courses</h2>
+            <div className="mt-8 space-y-7">
+              {studentCourses.map((course) => (
+                <article key={course.title} className="grid grid-cols-[52px_1fr_24px] items-center gap-4">
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-[#06056b] font-bold text-white">{course.icon}</span>
+                  <span>
+                    <span className="block font-extrabold">{course.title}</span>
+                    <span className="text-sm text-neutral-600">{course.hours}</span>
+                  </span>
+                  <button className="text-2xl leading-none">⋮</button>
+                </article>
+              ))}
+            </div>
+
+            <section className="mt-16">
+              <h2 className="text-2xl font-extrabold">Account Progress</h2>
+              <div className="mx-auto mt-10 grid h-48 w-48 place-items-center rounded-full bg-[conic-gradient(#06056b_0_70%,#eef0f4_70%_100%)] shadow-inner">
+                <div className="grid h-32 w-32 place-items-center rounded-full bg-white text-4xl font-extrabold">70%</div>
+              </div>
+              <p className="mt-8 text-sm font-bold text-neutral-700">Progress</p>
+              <div className="mt-3 h-2 rounded-full bg-neutral-200">
+                <div className="h-2 w-[70%] rounded-full bg-[#06056b]" />
+              </div>
+            </section>
+
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="mt-10 w-full rounded-full border border-[#06056b] px-6 py-3 font-bold text-[#06056b] hover:bg-[#06056b] hover:text-white"
+            >
+              Sign out
+            </button>
+          </aside>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+  const displayName = session?.user?.name || session?.user?.email || (role === "student" ? "Hira R" : "Teacher");
+
+  return (
+    <ProtectedLayout>
+      {role === "student" ? <StudentDashboard displayName={displayName} /> : <TeacherDashboard displayName={displayName} />}
     </ProtectedLayout>
   );
 }
